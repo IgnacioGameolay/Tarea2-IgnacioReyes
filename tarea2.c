@@ -348,6 +348,47 @@ void buscar_por_genre(Map *pelis_byGenre) {
   }
 }
 
+void buscar_por_decada_y_genre(Map *pelis_byYear, Map *pelis_byGenre){
+  char genre[300]; // Buffer para almacenar el ID de la película
+  printf("Ingrese el genero de la película: ");
+  scanf(" %[^\n]", genre);
+  
+  int decade; // Buffer para almacenar el ID de la película
+  printf("Ingrese la decada de la película: ");
+  scanf(" %d", &decade);
+
+  MapPair *genre_pair = map_search(pelis_byGenre, genre);
+  //director_pair = NULL;
+  if (genre_pair != NULL) {
+
+    List *genre_peliculas = (List *) genre_pair->value;
+    List *decada_peliculas = NULL;
+    MapPair *decada_pair = map_search(pelis_byYear, &decade);
+    
+    if (decada_pair != NULL){
+      decada_peliculas = (List *) decada_pair->value;
+      
+      //Recorrer la lista de peliculas con ese rating
+      Film *peliAux = list_first(genre_peliculas);
+      while(peliAux != NULL){
+        if (peliAux->decade == decade){
+          printf("Título: %s, Año: %d\n", peliAux->title, peliAux->year);
+        }
+        
+        
+        peliAux = list_next(genre_peliculas);
+        
+      }
+    } else {
+      printf("No hay peliculas para la decada: %d \n", decade);
+    }
+
+  } else {
+    printf("No hay pelis con este genero: %s \n", genre);
+  }
+
+  
+}
 
 int main() {
   char opcion; // Variable para almacenar una opción ingresada por el usuario
@@ -388,10 +429,10 @@ int main() {
       buscar_por_decada(pelis_byYear);
       break;
     case '6':
-          buscar_por_rating(pelis_byRating);
+      buscar_por_rating(pelis_byRating);
       break;
     case '7':
-      //Buscar por genero y rating
+      buscar_por_decada_y_genre(pelis_byYear, pelis_byGenre);
       break;
     default:
     }

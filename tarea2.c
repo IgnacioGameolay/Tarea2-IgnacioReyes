@@ -106,10 +106,13 @@ void cargar_peliculas(Map *pelis_byid,
     peli->genres = list_create();       // Inicializa la lista de géneros
     peli->year = atoi(campos[10]); // Asigna año, convirtiendo de cadena a entero
     peli->decade = peli->year / 10 * 10;
-    peli->rating = 9.5;
+    
+    float peli_rating = atof(campos[8]);
+    //printf("rating de peli: %f\n", peli_rating);
+    //float peli_rating = atof(campos[8]);
     // Inserta la película en el mapa usando el ID como clave
     map_insert(pelis_byid, peli->id, peli);
-
+    peli->rating = peli_rating;
 
 
     
@@ -182,9 +185,9 @@ void cargar_peliculas(Map *pelis_byid,
     }
 
     for (int rate = 0; rate < cant_intervalos; rate++){
-      printf("rating: %f\n", peli->rating);
-      printf("rating_intervalos: %f\n", rating_intervalos[rate][0]);
-      printf("rating_intervalos: %f\n", rating_intervalos[rate][1]);
+      //printf("rating: %f\n", peli->rating);
+      //printf("rating_intervalos: %f\n", rating_intervalos[rate][0]);
+      //printf("rating_intervalos: %f\n", rating_intervalos[rate][1]);
       if (peli->rating >= rating_intervalos[rate][0] && 
           peli->rating <= rating_intervalos[rate][1])
       {
@@ -194,14 +197,9 @@ void cargar_peliculas(Map *pelis_byid,
         MapPair *rating_pair = map_search(pelis_byRating, clave_intervalo);
         List *rating_peliculas = (List *) rating_pair->value;
         list_pushBack(rating_peliculas, peli);
-        printf("El rating _ %f _ se ingreso en el intervalo: %s\n", peli->rating, clave_intervalo);
+        //printf("El rating _ %f _ se ingreso en el intervalo: %s\n", peli->rating, clave_intervalo);
       }
-    }
-
-
-    
-    
-      
+    }  
   }
   fclose(archivo); // Cierra el archivo después de leer todas las líneas
 
@@ -214,14 +212,16 @@ void imprimir_mapa(Map *pelis_byX) {
   while (pair != NULL) {
     char *clave = (char *)pair->key;
     List *valor = (List *)pair->value;
-    printf("Genero : %s\n", clave);
+    printf("===============================\n");
+    printf("Clave : %s\n", clave);
 
     Film *peli = list_first(valor);
     while (peli != NULL) {
-      printf("  - Título: %s, Año: %d\n", peli->title, peli->year);
+      printf("  - Título: %s, ID: %s, Rating: %.01f, Decade: %d\n", peli->title, peli->id, 
+                                                              peli->rating, peli->decade);
       peli = list_next(valor);
     }
-    
+    printf("===============================\n");
     pair = map_next(pelis_byX);
   }
 }

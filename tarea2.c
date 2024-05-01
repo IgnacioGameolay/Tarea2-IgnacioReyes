@@ -9,7 +9,7 @@ typedef struct {
   char id[100];
   char title[100];
   List *genres;
-  char director[300];
+  List *directors;
   float rating;
   int year;
   int decade;
@@ -87,13 +87,17 @@ void cargar_peliculas(Map *pelis_byid,
     Film *peli = (Film *)malloc(sizeof(Film));
     strcpy(peli->id, campos[1]);        // Asigna ID
     strcpy(peli->title, campos[5]);     // Asigna título
-    strcpy(peli->director, campos[14]); // Asigna director
+    //strcpy(peli->director, campos[14]); // Asigna director
+    peli->directors = list_create();  //Crear lista para directores
     peli->genres = list_create();       // Inicializa la lista de géneros
     peli->year = atoi(campos[10]); // Asigna año, convirtiendo de cadena a entero
     peli->decade = peli->year / 10 * 10;
     // Inserta la película en el mapa usando el ID como clave
     map_insert(pelis_byid, peli->id, peli);
 
+
+
+    
     // Agrega el género a la lista de géneros de la película
     //web pa recorda: https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
     char *tokenDiv = strtok(campos[11], ","); // Dividir los géeeros por comas
@@ -117,6 +121,8 @@ void cargar_peliculas(Map *pelis_byid,
       list_pushFront(genre_peliculas, peli);
       genre_token = list_next(peli->genres);//[pasar al] siguiente token
     }
+
+
     
     //Inserta la película en el mapa por decada
     //int decada = 
@@ -136,21 +142,31 @@ void cargar_peliculas(Map *pelis_byid,
     list_pushFront(decada_peliculas, peli);
 
     
-    
-    //Inserta la peli en el mapa usando el director como clave
-    MapPair *director_pair = map_search(pelis_byDirector, peli->director);
-    List *director_peliculas = NULL;
-    if (director_pair != NULL) {
-      director_peliculas = (List *) director_pair->value;
-      
-    } else{
-      director_peliculas = list_create();
-      //printf("Se inserto con el director//: %s\n", peli->director);
-      map_insert(pelis_byDirector, peli->director, director_peliculas);
+    tokenDiv = strtok(campos[14], ","); // Dividir los géeeros por comas
+    while (tokenDiv != NULL){
+      //Guardamos cada gnero en la list de la peli
+      list_pushBack(peli->directors, strdup(tokenDiv)); //strdup() para guardar por referencia
+          tokenDiv = strtok(NULL, ",");
     }
-    //Agregar peli a la lista de pelis del director
-    list_pushBack(director_peliculas, peli);
+    char *director_token = list_first(peli->directors);
+    List *director_peliculas = NULL;
+    
+    while(director_token != NULL){
+      MapPair *director_pair = map_search(pelis_byDirector, director_token);
+      if (director_pair != NULL) {
+        director_peliculas = (List *) director_pair->value;
 
+      } else{
+        director_peliculas = list_create();
+        //printf("Se inserto con el director//: %s\n", peli->director);
+        //map_insert(pelis_byGenre, strdup(genre_token), genre_peliculas);
+        map_insert(pelis_byDirector, strdup(director_token), director_peliculas);
+      }
+      list_pushBack(director_peliculas, peli);
+      director_token = list_next(peli->directors);
+    }
+
+  
 
     //Inserta la película en el mapa por rating
     MapPair *rating_pair = map_search(pelis_byRating, &peli->rating);
@@ -171,7 +187,7 @@ void cargar_peliculas(Map *pelis_byid,
   fclose(archivo); // Cierra el archivo después de leer todas las líneas
 
   // Itera sobre el mapa para mostrar las películas cargadas
-  imprimir_mapa(pelis_byGenre);
+  imprimir_mapa(pelis_byDirector);
 }
 
 void imprimir_mapa(Map *pelis_byX) {
@@ -210,7 +226,7 @@ void buscar_por_id(Map *pelis_byid) {
     Film *peli =
         pair->value; // Obtiene el puntero a la estructura de la película
     // Muestra el título y el año de la película
-    printf("Título: %s, Año: %d\n, Director: %s", peli->title, peli->year, peli->director);
+    printf("Título: %s, Año: %d\n, Director: xd", peli->title, peli->year);
   } else {
     // Si no se encuentra la película, informa al usuario
     printf("La película con id %s no existe\n", id);

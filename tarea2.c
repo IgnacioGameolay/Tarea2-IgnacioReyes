@@ -12,6 +12,7 @@ typedef struct {
   char director[300];
   float rating;
   int year;
+  int decade;
 } Film;
 
 // Menú principal
@@ -54,15 +55,18 @@ int is_equal_str(void *key1, void *key2) {
 int is_equal_int(void *key1, void *key2) {
   return *(int *)key1 == *(int *)key2; // Compara valores enteros directamente
 }
-
+int is_equal_float(void *key1, void *key2) {
+  return *(float *)key1 == *(float *)key2; // Compara valores enteros directamente
+}
 /**
  * Carga películas desde un archivo CSV y las almacena en un mapa por ID.
  */
+void imprimir_mapa(Map *pelis_byid);
 void cargar_peliculas(Map *pelis_byid,
-                      Map *pelis_byTitle,
                       Map *pelis_byGenre,
                       Map *pelis_byDirector,
-                      Map *pelis_byRating) {
+                      Map *pelis_byRating,
+                      Map *pelis_byYear) {
   
   // Intenta abrir el archivo CSV que contiene datos de películas
   FILE *archivo = fopen("data/Top1500.csv", "r");
@@ -85,18 +89,46 @@ void cargar_peliculas(Map *pelis_byid,
     strcpy(peli->title, campos[5]);     // Asigna título
     strcpy(peli->director, campos[14]); // Asigna director
     peli->genres = list_create();       // Inicializa la lista de géneros
-    peli->year =
-        atoi(campos[10]); // Asigna año, convirtiendo de cadena a entero
-
+    peli->year = atoi(campos[10]); // Asigna año, convirtiendo de cadena a entero
+    peli->decade = peli->year / 10 * 10;
     // Inserta la película en el mapa usando el ID como clave
     map_insert(pelis_byid, peli->id, peli);
     
-    //Inserta la peli en el mapa usando el director como clave
-    //Clave: director - valor: vector de pelis del director
+    
+    
+    //Inserta la película en el mapa por decada
+    //int decada = 
+    //printf("Decada//: %d\n", decada);
+    List *decada_peliculas = NULL;
+    
+    MapPair *decada_pair = map_search(pelis_byYear, &peli->decade);
 
+    if (decada_pair != NULL) {
+      decada_peliculas = (List *)decada_pair->value;
+    } else {
+      decada_peliculas = list_create();
+      printf("Se inserto la decada//: %d\n", peli->decade);
+      map_insert(pelis_byYear, &peli->decade, decada_peliculas);
+      
+    }
+
+    list_pushBack(decada_peliculas, peli);
+    
+    /*if (decada_pair != NULL) {
+      decada_peliculas = (List *) decada_pair->value;//Lista asociada a la decada
+      
+    } else {
+      decada_peliculas = list_create();
+      map_insert(pelis_byYear, &decada, decada_peliculas);
+      printf("Se ha agregado la peli: %s",peli->title);
+    }*/
+    list_pushFront(decada_peliculas, peli);
+    
+
+    //Inserta la peli en el mapa usando el director como clave
     MapPair *director_pair = map_search(pelis_byDirector, peli->director);
     List *director_peliculas = NULL;
-    if (director_peliculas != NULL) {
+    if (director_pair != NULL) {
       director_peliculas = (List *) director_pair->value;
       
     } else{
@@ -110,6 +142,7 @@ void cargar_peliculas(Map *pelis_byid,
     //Inserta la película en el mapa por rating
     MapPair *rating_pair = map_search(pelis_byRating, &peli->rating);
     List *rating_peliculas = NULL;
+    
     if (rating_pair != NULL) {
       rating_peliculas = (List *) rating_pair->value;
       
@@ -119,16 +152,29 @@ void cargar_peliculas(Map *pelis_byid,
     }
     
     list_pushBack(rating_peliculas, peli);
+
+    
   }
   fclose(archivo); // Cierra el archivo después de leer todas las líneas
 
   // Itera sobre el mapa para mostrar las películas cargadas
-  MapPair *pair = map_first(pelis_byid);
+  imprimir_mapa(pelis_byYear);
+}
+
+void imprimir_mapa(Map *pelis_byYear) {
+  MapPair *pair = map_first(pelis_byYear);
   while (pair != NULL) {
-    Film *peli = pair->value;
-    printf("ID: %s, Título: %s, Director: %s, Año: %d\n", peli->id, peli->title,
-           peli->director, peli->year);
-    pair = map_next(pelis_byid); // Avanza al siguiente par en el mapa
+    int *decada = (int *)pair->key;
+    List *peliculas = (List *)pair->value;
+    printf("Década: %d\n", *decada);
+
+    /*Film *peli = list_first(peliculas);
+    while (peli != NULL) {
+      printf("  - Título: %s, Año: %d\n", peli->title, peli->year);
+      peli = list_next(peliculas);
+    }
+    */
+    pair = map_next(pelis_byYear);
   }
 }
 
@@ -186,28 +232,61 @@ void buscar_por_director(Map *pelis_byDirector) {
 
 //Buscar por rating
 void buscar_por_rating(Map *pelis_byRating) {
-  float rating; // Buffer para almacenar el ID de la película
+  float rating_inferior, rating_superior; // Buffer para almacenar el ID de la película
 
-  printf("Ingrese el Rating de la película: ");
-  scanf(" %f", &rating);
+  printf("Ingrese el rango de clasificaciones de la película (por ejemplo: 6.0-6.4): ");
+  scanf(" %f-%f", &rating_inferior, &rating_superior);
 
-  MapPair *rating_pair = map_search(pelis_byRating, &rating);
+  MapPair *rating_pair = map_first(pelis_byRating);
   //director_pair = NULL;
-  if (rating_pair != NULL) {
+  while (rating_pair != NULL) {
+    float rating = *(float *)rating_pair->key;
+    if (rating >= rating_inferior && rating <= rating_superior){
+      List *rating_peliculas = (List *) rating_pair->value;
+      printf("Peliculas con calificación %.1f - %.1f:\n", rating_inferior, rating_superior);
 
-    List *rating_peliculas = (List *) rating_pair->value;
-    printf("Peliculas con rating %.02f:\n", rating);
+      //Recorrer la lista de peliculas con ese rating
+      Film *peliAux = list_first(rating_peliculas);
+      while(peliAux != NULL){
+        printf("Título: %s, Año: %d\n", peliAux->title, peliAux->year);
+        peliAux = list_next(rating_peliculas);
+      }
+      break;
+    }
+    rating_pair = map_next(pelis_byRating);
+
+  } 
+  if (rating_pair == NULL){
+    printf("No hay pelis rango de %.1f - %.1f\n", rating_inferior, rating_superior);
+  }
+}
+
+//Buscar por decada
+void buscar_por_decada(Map *pelis_byYear) {
+  int year; // Buffer para almacenar el ID de la película
+  
+  printf("Ingrese el año de la película: ");
+  scanf(" %d", &year);
+  int decada = (year/10)*10;
+  
+  printf("Decada buscada: %d\n", decada);
+  MapPair *decada_pair = map_search(pelis_byYear, &decada);
+  //director_pair = NULL;
+  if (decada_pair != NULL) {
+
+    List *decada_peliculas = (List *) decada_pair->value;
+    printf("Peliculas de la decada del %d:\n", decada);
 
     //Recorrer la lista de peliculas con ese rating
-    Film *peliAux = list_first(rating_peliculas);
+    Film *peliAux = list_first(decada_peliculas);
     while(peliAux != NULL){
 
       printf("Título: %s, Año: %d\n", peliAux->title, peliAux->year);
-      peliAux = list_next(rating_peliculas);
+      peliAux = list_next(decada_peliculas);
     }
 
   } else {
-    printf("No hay pelis con el rating: %f \n", rating);
+    printf("No hay pelis en esta decada: %d \n", decada);
   }
 }
 
@@ -218,12 +297,10 @@ int main() {
   // Crea un mapa para almacenar películas, utilizando una función de
   // comparación que trabaja con claves de tipo string.
   Map *pelis_byid = map_create(is_equal_str);
-  
-  Map *pelis_byTitle = map_create(is_equal_str);
   Map *pelis_byGenre = map_create(is_equal_str);
   Map *pelis_byDirector = map_create(is_equal_str);
-  Map *pelis_byRating = map_create(is_equal_str);
-  Map *pelis_byYear = map_create(is_equal_str);
+  Map *pelis_byRating = map_create(is_equal_float);
+  Map *pelis_byYear = map_create(is_equal_int);
   // Recuerda usar un mapa por criterio de búsqueda
 
   do {
@@ -234,10 +311,10 @@ int main() {
     switch (opcion) {
     case '1':
       cargar_peliculas(pelis_byid,
-                        pelis_byTitle,
                         pelis_byGenre,
                         pelis_byDirector,
-                        pelis_byRating);
+                        pelis_byRating,
+                        pelis_byYear);
       break;
     case '2':
       buscar_por_id(pelis_byid);
@@ -246,11 +323,13 @@ int main() {
       buscar_por_director(pelis_byDirector);
       break;
     case '4':
-        buscar_por_rating(pelis_byRating);
+      
       break;
     case '5':
+      buscar_por_decada(pelis_byYear);
       break;
     case '6':
+          buscar_por_rating(pelis_byRating);
       break;
     case '7':
       break;

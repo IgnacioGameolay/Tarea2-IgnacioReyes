@@ -170,9 +170,9 @@ void buscar_por_director(Map *pelis_byDirector) {
     
     List *director_peliculas = (List *) director_pair->value;
     printf("Pelicula del director %s:\n", director);
-    
+
+    //Recorrer la lista de peliculas con ese director
     Film *peliAux = list_first(director_peliculas);
-    
     while(peliAux != NULL){
       
       printf("Título: %s, Año: %d\n", peliAux->title, peliAux->year);

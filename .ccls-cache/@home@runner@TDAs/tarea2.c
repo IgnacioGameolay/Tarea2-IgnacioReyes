@@ -58,12 +58,7 @@ int is_equal_int(void *key1, void *key2) {
 /**
  * Carga películas desde un archivo CSV y las almacena en un mapa por ID.
  */
-void cargar_peliculas(Map *pelis_byid,
-                      Map *pelis_byTitle,
-                      Map *pelis_byGenre,
-                      Map *pelis_byDirector,
-                      Map *pelis_byRating) {
-  
+void cargar_peliculas(Map *pelis_byid) {
   // Intenta abrir el archivo CSV que contiene datos de películas
   FILE *archivo = fopen("data/Top1500.csv", "r");
   if (archivo == NULL) {
@@ -90,35 +85,6 @@ void cargar_peliculas(Map *pelis_byid,
 
     // Inserta la película en el mapa usando el ID como clave
     map_insert(pelis_byid, peli->id, peli);
-    
-    //Inserta la peli en el mapa usando el director como clave
-    //Clave: director - valor: vector de pelis del director
-
-    MapPair *director_pair = map_search(pelis_byDirector, peli->director);
-    List *director_peliculas = NULL;
-    if (director_peliculas != NULL) {
-      director_peliculas = (List *) director_pair->value;
-      
-    } else{
-      director_peliculas = list_create();
-      map_insert(pelis_byDirector, peli->director, director_peliculas);
-    }
-    //Agregar peli a la lista de pelis del director
-    list_pushBack(director_peliculas, peli);
-
-
-    //Inserta la película en el mapa por rating
-    MapPair *rating_pair = map_search(pelis_byRating, &peli->rating);
-    List *rating_peliculas = NULL;
-    if (rating_pair != NULL) {
-      rating_peliculas = (List *) rating_pair->value;
-      
-    } else {
-      rating_peliculas = list_create();
-      map_insert(pelis_byRating, &peli->rating, rating_peliculas);
-    }
-    
-    list_pushBack(rating_peliculas, peli);
   }
   fclose(archivo); // Cierra el archivo después de leer todas las líneas
 
@@ -136,7 +102,7 @@ void cargar_peliculas(Map *pelis_byid,
  * Busca y muestra la información de una película por su ID en un mapa.
  */
 void buscar_por_id(Map *pelis_byid) {
-  char id[100]; // Buffer para almacenar el ID de la película
+  char id[10]; // Buffer para almacenar el ID de la película
 
   // Solicita al usuario el ID de la película
   printf("Ingrese el id de la película: ");
@@ -151,63 +117,10 @@ void buscar_por_id(Map *pelis_byid) {
     Film *peli =
         pair->value; // Obtiene el puntero a la estructura de la película
     // Muestra el título y el año de la película
-    printf("Título: %s, Año: %d\n, Director: %s", peli->title, peli->year, peli->director);
+    printf("Título: %s, Año: %d\n", peli->title, peli->year);
   } else {
     // Si no se encuentra la película, informa al usuario
     printf("La película con id %s no existe\n", id);
-  }
-}
-
-void buscar_por_director(Map *pelis_byDirector) {
-  char director[300]; // Buffer para almacenar el ID de la película
- 
-  printf("Ingrese el Director de la película: ");
-  scanf(" %[^\n]", director);
-  
-  MapPair *director_pair = map_search(pelis_byDirector, director);
-  //director_pair = NULL;
-  if (director_pair != NULL) {
-    
-    List *director_peliculas = (List *) director_pair->value;
-    printf("Pelicula del director %s:\n", director);
-    
-    Film *peliAux = list_first(director_peliculas);
-    
-    while(peliAux != NULL){
-      
-      printf("Título: %s, Año: %d\n", peliAux->title, peliAux->year);
-      peliAux = list_next(director_peliculas);
-    }
-    
-  } else {
-    printf("El director %s no tiene peliculas\n", director);
-  }
-}
-
-//Buscar por rating
-void buscar_por_rating(Map *pelis_byRating) {
-  float rating; // Buffer para almacenar el ID de la película
-
-  printf("Ingrese el Rating de la película: ");
-  scanf(" %f", &rating);
-
-  MapPair *rating_pair = map_search(pelis_byRating, &rating);
-  //director_pair = NULL;
-  if (rating_pair != NULL) {
-
-    List *rating_peliculas = (List *) rating_pair->value;
-    printf("Peliculas con rating %.02f:\n", rating);
-
-    //Recorrer la lista de peliculas con ese rating
-    Film *peliAux = list_first(rating_peliculas);
-    while(peliAux != NULL){
-
-      printf("Título: %s, Año: %d\n", peliAux->title, peliAux->year);
-      peliAux = list_next(rating_peliculas);
-    }
-
-  } else {
-    printf("No hay pelis con el rating: %f \n", rating);
   }
 }
 
@@ -218,12 +131,7 @@ int main() {
   // Crea un mapa para almacenar películas, utilizando una función de
   // comparación que trabaja con claves de tipo string.
   Map *pelis_byid = map_create(is_equal_str);
-  
-  Map *pelis_byTitle = map_create(is_equal_str);
-  Map *pelis_byGenre = map_create(is_equal_str);
-  Map *pelis_byDirector = map_create(is_equal_str);
-  Map *pelis_byRating = map_create(is_equal_str);
-  Map *pelis_byYear = map_create(is_equal_str);
+
   // Recuerda usar un mapa por criterio de búsqueda
 
   do {
@@ -233,20 +141,14 @@ int main() {
 
     switch (opcion) {
     case '1':
-      cargar_peliculas(pelis_byid,
-                        pelis_byTitle,
-                        pelis_byGenre,
-                        pelis_byDirector,
-                        pelis_byRating);
+      cargar_peliculas(pelis_byid);
       break;
     case '2':
       buscar_por_id(pelis_byid);
       break;
     case '3':
-      buscar_por_director(pelis_byDirector);
       break;
     case '4':
-        buscar_por_rating(pelis_byRating);
       break;
     case '5':
       break;

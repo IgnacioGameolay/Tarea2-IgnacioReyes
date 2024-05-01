@@ -93,8 +93,30 @@ void cargar_peliculas(Map *pelis_byid,
     peli->decade = peli->year / 10 * 10;
     // Inserta la película en el mapa usando el ID como clave
     map_insert(pelis_byid, peli->id, peli);
+
+    // Agrega el género a la lista de géneros de la película
+    //web pa recorda: https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
+    char *tokenDiv = strtok(campos[11], ","); // Dividir los géeeros por comas
+    while (tokenDiv != NULL){
+      //Guardamos cada gnero en la list de la peli
+      list_pushBack(peli->genres, strdup(tokenDiv)); //strdup() para guardar por referencia
+        tokenDiv = strtok(NULL, ",");
+    }
+    List *genre_peliculas = NULL;
+    char *genre_token = list_first(peli->genres);
     
-    
+    while(genre_token != NULL){
+      MapPair *genre_pair = map_search(pelis_byGenre, genre_token);
+
+      if (genre_pair != NULL){
+        genre_peliculas = (List *)genre_pair->value;
+      } else {
+        genre_peliculas = list_create();
+        map_insert(pelis_byGenre, strdup(genre_token), genre_peliculas);
+      }
+      list_pushFront(genre_peliculas, peli);
+      genre_token = list_next(peli->genres);//[pasar al] siguiente token
+    }
     
     //Inserta la película en el mapa por decada
     //int decada = 
@@ -114,7 +136,7 @@ void cargar_peliculas(Map *pelis_byid,
     list_pushFront(decada_peliculas, peli);
 
     
-
+    
     //Inserta la peli en el mapa usando el director como clave
     MapPair *director_pair = map_search(pelis_byDirector, peli->director);
     List *director_peliculas = NULL;
@@ -123,7 +145,7 @@ void cargar_peliculas(Map *pelis_byid,
       
     } else{
       director_peliculas = list_create();
-      printf("Se inserto con el director//: %s\n", peli->director);
+      //printf("Se inserto con el director//: %s\n", peli->director);
       map_insert(pelis_byDirector, peli->director, director_peliculas);
     }
     //Agregar peli a la lista de pelis del director
@@ -149,7 +171,7 @@ void cargar_peliculas(Map *pelis_byid,
   fclose(archivo); // Cierra el archivo después de leer todas las líneas
 
   // Itera sobre el mapa para mostrar las películas cargadas
-  imprimir_mapa(pelis_byDirector);
+  imprimir_mapa(pelis_byGenre);
 }
 
 void imprimir_mapa(Map *pelis_byX) {
@@ -157,13 +179,13 @@ void imprimir_mapa(Map *pelis_byX) {
   while (pair != NULL) {
     char *clave = (char *)pair->key;
     List *valor = (List *)pair->value;
-    printf("Clave : %s\n", clave);
+    printf("Genero : %s\n", clave);
 
-    /*Film *peli = list_first(valor);
+    Film *peli = list_first(valor);
     while (peli != NULL) {
       printf("  - Título: %s, Año: %d\n", peli->title, peli->year);
       peli = list_next(valor);
-    }*/
+    }
     
     pair = map_next(pelis_byX);
   }
@@ -282,6 +304,35 @@ void buscar_por_decada(Map *pelis_byYear) {
   }
 }
 
+//Buscar por decada
+void buscar_por_genre(Map *pelis_byGenre) {
+  char genre[300]; // Buffer para almacenar el ID de la película
+
+  printf("Ingrese el genero de la película: ");
+  scanf(" %[^\n]", genre);
+
+  printf("Genero buscado: %s\n", genre);
+  MapPair *genre_pair = map_search(pelis_byGenre, genre);
+  //director_pair = NULL;
+  if (genre_pair != NULL) {
+
+    List *genre_peliculas = (List *) genre_pair->value;
+    printf("Peliculas con el genero del %s:\n", genre);
+
+    //Recorrer la lista de peliculas con ese rating
+    Film *peliAux = list_first(genre_peliculas);
+    while(peliAux != NULL){
+
+      printf("Título: %s, Año: %d\n", peliAux->title, peliAux->year);
+      peliAux = list_next(genre_peliculas);
+    }
+
+  } else {
+    printf("No hay pelis con este genero: %s \n", genre);
+  }
+}
+
+
 int main() {
   char opcion; // Variable para almacenar una opción ingresada por el usuario
                // (sin uso en este fragmento)
@@ -315,7 +366,7 @@ int main() {
       buscar_por_director(pelis_byDirector);
       break;
     case '4':
-      
+      buscar_por_genre(pelis_byGenre);
       break;
     case '5':
       buscar_por_decada(pelis_byYear);
@@ -324,6 +375,7 @@ int main() {
           buscar_por_rating(pelis_byRating);
       break;
     case '7':
+      //Buscar por genero y rating
       break;
     default:
     }

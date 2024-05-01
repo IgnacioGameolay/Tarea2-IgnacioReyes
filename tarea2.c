@@ -62,6 +62,7 @@ int is_equal_float(void *key1, void *key2) {
  * Carga películas desde un archivo CSV y las almacena en un mapa por ID.
  */
 void imprimir_mapa(Map *pelis_byid);
+
 void cargar_peliculas(Map *pelis_byid,
                       Map *pelis_byGenre,
                       Map *pelis_byDirector,
@@ -81,6 +82,19 @@ void cargar_peliculas(Map *pelis_byid,
   // strings, donde cada elemento representa un campo de la línea CSV procesada.
   campos = leer_linea_csv(archivo, ','); // Lee los encabezados del CSV
 
+  int cant_intervalos = 10;
+  float rating_intervalos[10][2] = {  
+                            {1.0, 1.4}, {1.5, 2.9}, {3.0, 3.4}, {3.5, 4.9},
+                            {5.0, 5.4}, {5.5, 6.9}, {7.0, 7.4}, {7.5, 8.9},
+                            {9.0, 9.4}, {9.5, 10.0} };
+
+  for (int rate = 0; rate < cant_intervalos; rate++){
+    List *intervalo_peliculas = list_create(); //Lista de peliculas del intervalo
+    char clave_intervalo[10]; //La clave para cada intervalo dentro del map
+    sprintf(clave_intervalo, "%.1f-%.1f", rating_intervalos[rate][0],                                                                   rating_intervalos[rate][1]);
+    map_insert(pelis_byRating, strdup(clave_intervalo), intervalo_peliculas);
+  }
+  
   // Lee cada línea del archivo CSV hasta el final
   while ((campos = leer_linea_csv(archivo, ',')) != NULL) {
     // Crea una nueva estructura Film y almacena los datos de cada película
@@ -92,6 +106,7 @@ void cargar_peliculas(Map *pelis_byid,
     peli->genres = list_create();       // Inicializa la lista de géneros
     peli->year = atoi(campos[10]); // Asigna año, convirtiendo de cadena a entero
     peli->decade = peli->year / 10 * 10;
+    peli->rating = 9.5;
     // Inserta la película en el mapa usando el ID como clave
     map_insert(pelis_byid, peli->id, peli);
 
@@ -166,28 +181,32 @@ void cargar_peliculas(Map *pelis_byid,
       director_token = list_next(peli->directors);
     }
 
-  
-
-    //Inserta la película en el mapa por rating
-    MapPair *rating_pair = map_search(pelis_byRating, &peli->rating);
-    List *rating_peliculas = NULL;
-    
-    if (rating_pair != NULL) {
-      rating_peliculas = (List *) rating_pair->value;
-      
-    } else {
-      rating_peliculas = list_create();
-      map_insert(pelis_byRating, &peli->rating, rating_peliculas);
+    for (int rate = 0; rate < cant_intervalos; rate++){
+      printf("rating: %f\n", peli->rating);
+      printf("rating_intervalos: %f\n", rating_intervalos[rate][0]);
+      printf("rating_intervalos: %f\n", rating_intervalos[rate][1]);
+      if (peli->rating >= rating_intervalos[rate][0] && 
+          peli->rating <= rating_intervalos[rate][1])
+      {
+        char clave_intervalo[10]; //La clave para cada intervalo dentro del map
+        sprintf(clave_intervalo, "%.1f-%.1f", rating_intervalos[rate][0],                                                                   rating_intervalos[rate][1]);
+        
+        MapPair *rating_pair = map_search(pelis_byRating, clave_intervalo);
+        List *rating_peliculas = (List *) rating_pair->value;
+        list_pushBack(rating_peliculas, peli);
+        printf("El rating _ %f _ se ingreso en el intervalo: %s\n", peli->rating, clave_intervalo);
+      }
     }
-    
-    list_pushBack(rating_peliculas, peli);
+
 
     
+    
+      
   }
   fclose(archivo); // Cierra el archivo después de leer todas las líneas
 
   // Itera sobre el mapa para mostrar las películas cargadas
-  imprimir_mapa(pelis_byDirector);
+  imprimir_mapa(pelis_byRating);
 }
 
 void imprimir_mapa(Map *pelis_byX) {
@@ -266,12 +285,16 @@ void buscar_por_rating(Map *pelis_byRating) {
 
   printf("Ingrese el rango de clasificaciones de la película (por ejemplo: 6.0-6.4): ");
   scanf(" %f-%f", &rating_inferior, &rating_superior);
+  
+  char clave_intervalo[10];
+  sprintf(clave_intervalo, "%.1f-%.1f", rating_inferior, rating_superior);
 
-  MapPair *rating_pair = map_first(pelis_byRating);
+  MapPair *rating_pair = map_search(pelis_byRating, clave_intervalo);
   //director_pair = NULL;
-  while (rating_pair != NULL) {
-    float rating = *(float *)rating_pair->key;
-    if (rating >= rating_inferior && rating <= rating_superior){
+  //while (rating_pair != NULL) {
+    //float rating = *(float *)rating_pair->key;
+    //if (rating >= rating_inferior && rating <= rating_superior){
+    if (rating_pair != NULL) {
       List *rating_peliculas = (List *) rating_pair->value;
       printf("Peliculas con calificación %.1f - %.1f:\n", rating_inferior, rating_superior);
 
@@ -281,11 +304,11 @@ void buscar_por_rating(Map *pelis_byRating) {
         printf("Título: %s, Año: %d\n", peliAux->title, peliAux->year);
         peliAux = list_next(rating_peliculas);
       }
-      break;
+      //break;
     }
-    rating_pair = map_next(pelis_byRating);
-
-  } 
+    //rating_pair = map_next(pelis_byRating);
+  //}
+   
   if (rating_pair == NULL){
     printf("No hay pelis rango de %.1f - %.1f\n", rating_inferior, rating_superior);
   }

@@ -107,22 +107,12 @@ void cargar_peliculas(Map *pelis_byid,
       decada_peliculas = (List *)decada_pair->value;
     } else {
       decada_peliculas = list_create();
-      printf("Se inserto la decada//: %d\n", peli->decade);
+      
       map_insert(pelis_byYear, &peli->decade, decada_peliculas);
       
     }
-
-    list_pushBack(decada_peliculas, peli);
-    
-    /*if (decada_pair != NULL) {
-      decada_peliculas = (List *) decada_pair->value;//Lista asociada a la decada
-      
-    } else {
-      decada_peliculas = list_create();
-      map_insert(pelis_byYear, &decada, decada_peliculas);
-      printf("Se ha agregado la peli: %s",peli->title);
-    }*/
     list_pushFront(decada_peliculas, peli);
+
     
 
     //Inserta la peli en el mapa usando el director como clave
@@ -133,6 +123,7 @@ void cargar_peliculas(Map *pelis_byid,
       
     } else{
       director_peliculas = list_create();
+      printf("Se inserto con el director//: %s\n", peli->director);
       map_insert(pelis_byDirector, peli->director, director_peliculas);
     }
     //Agregar peli a la lista de pelis del director
@@ -158,23 +149,23 @@ void cargar_peliculas(Map *pelis_byid,
   fclose(archivo); // Cierra el archivo después de leer todas las líneas
 
   // Itera sobre el mapa para mostrar las películas cargadas
-  imprimir_mapa(pelis_byYear);
+  imprimir_mapa(pelis_byDirector);
 }
 
-void imprimir_mapa(Map *pelis_byYear) {
-  MapPair *pair = map_first(pelis_byYear);
+void imprimir_mapa(Map *pelis_byX) {
+  MapPair *pair = map_first(pelis_byX);
   while (pair != NULL) {
-    int *decada = (int *)pair->key;
-    List *peliculas = (List *)pair->value;
-    printf("Década: %d\n", *decada);
+    char *clave = (char *)pair->key;
+    List *valor = (List *)pair->value;
+    printf("Clave : %s\n", clave);
 
-    /*Film *peli = list_first(peliculas);
+    /*Film *peli = list_first(valor);
     while (peli != NULL) {
       printf("  - Título: %s, Año: %d\n", peli->title, peli->year);
-      peli = list_next(peliculas);
-    }
-    */
-    pair = map_next(pelis_byYear);
+      peli = list_next(valor);
+    }*/
+    
+    pair = map_next(pelis_byX);
   }
 }
 
@@ -204,6 +195,7 @@ void buscar_por_id(Map *pelis_byid) {
   }
 }
 
+/***caso a considerar: si una pelicula tiene mas de un director, habra que filtrarla de la siguiente manera: "Nombre Apellido, Nombre Apellido, Nombre Apellido"*/
 void buscar_por_director(Map *pelis_byDirector) {
   char director[300]; // Buffer para almacenar el ID de la película
  

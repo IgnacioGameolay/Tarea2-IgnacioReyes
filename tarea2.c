@@ -226,16 +226,50 @@ void imprimir_mapa(Map *pelis_byX) {
   }
 }
 
+void imprimir_peli(Film *peli){
+  short is_first = 1;
+  printf("===============================\n");
+  printf("Título: %s\n", peli->title);
+  printf("ID: %s\n", peli->id);
+  printf("Rating: %.01f\n", peli->rating);
+  printf("Año: %d\n", peli->year);
+  printf("Década: %ds\n", peli->decade);
+
+  printf("Géneros:\n");
+  List *list_genres = peli->genres;
+  char *genre = list_first(list_genres);
+  while (genre != NULL){
+    if (is_first){
+      printf("  -  %s\n", genre);
+      is_first = 0;
+    } else printf("  - %s\n", genre);
+    
+    genre = list_next(list_genres);
+  }
+
+  is_first = 1;
+  printf("Director(es):\n");
+  List *list_directors = peli->directors;
+  char *directors = list_first(list_directors);
+  while (directors != NULL){
+    if (is_first){
+      printf("  -  %s\n", directors);
+      is_first = 0;
+    }else printf("  - %s\n", directors);
+    directors = list_next(list_genres);
+  }
+  printf("===============================\n");
+}
 /**
  * Busca y muestra la información de una película por su ID en un mapa.
  */
 void buscar_por_id(Map *pelis_byid) {
   char id[100]; // Buffer para almacenar el ID de la película
-
+  printf("===============================\n");
   // Solicita al usuario el ID de la película
   printf("Ingrese el id de la película: ");
   scanf("%s", id); // Lee el ID del teclado
-
+  printf("===============================\n");
   // Busca el par clave-valor en el mapa usando el ID proporcionado
   MapPair *pair = map_search(pelis_byid, id);
 
@@ -245,81 +279,85 @@ void buscar_por_id(Map *pelis_byid) {
     Film *peli =
         pair->value; // Obtiene el puntero a la estructura de la película
     // Muestra el título y el año de la película
-    printf("Título: %s, Año: %d\n, Director: xd", peli->title, peli->year);
+    imprimir_peli(peli);
   } else {
+    printf("===============================\n");
     // Si no se encuentra la película, informa al usuario
     printf("La película con id %s no existe\n", id);
   }
+  printf("===============================\n");
 }
+
 
 /***caso a considerar: si una pelicula tiene mas de un director, habra que filtrarla de la siguiente manera: "Nombre Apellido, Nombre Apellido, Nombre Apellido"*/
 void buscar_por_director(Map *pelis_byDirector) {
   char director[300]; // Buffer para almacenar el ID de la película
- 
-  printf("Ingrese el Director de la película: ");
+  printf("===============================\n");
+  printf("Ingrese el Director de la(s) película(s): ");
   scanf(" %[^\n]", director);
-  
+  printf("===============================\n");
   MapPair *director_pair = map_search(pelis_byDirector, director);
   //director_pair = NULL;
   if (director_pair != NULL) {
     
     List *director_peliculas = (List *) director_pair->value;
-    printf("Pelicula del director %s:\n", director);
+    printf("Pelicula(s) del director %s:\n", director);
 
     //Recorrer la lista de peliculas con ese director
     Film *peliAux = list_first(director_peliculas);
     while(peliAux != NULL){
       
-      printf("Título: %s, Año: %d\n", peliAux->title, peliAux->year);
+      imprimir_peli(peliAux);
       peliAux = list_next(director_peliculas);
     }
     
   } else {
+    printf("===============================\n");
     printf("El director %s no tiene peliculas\n", director);
+    printf("===============================\n");
   }
 }
 
 //Buscar por rating
 void buscar_por_rating(Map *pelis_byRating) {
   float rating_inferior, rating_superior; // Buffer para almacenar el ID de la película
-
-  printf("Ingrese el rango de clasificaciones de la película (por ejemplo: 6.0-6.4): ");
+  printf("===============================\n");
+  printf("Ingrese el rango de rating de la película (formato: 6.0-6.4): ");
   scanf(" %f-%f", &rating_inferior, &rating_superior);
-  
-  char clave_intervalo[10];
+  printf("===============================\n");
+  char clave_intervalo[100];
   sprintf(clave_intervalo, "%.1f-%.1f", rating_inferior, rating_superior);
 
   MapPair *rating_pair = map_search(pelis_byRating, clave_intervalo);
-  //director_pair = NULL;
-  //while (rating_pair != NULL) {
-    //float rating = *(float *)rating_pair->key;
-    //if (rating >= rating_inferior && rating <= rating_superior){
-    if (rating_pair != NULL) {
+  
+  if (rating_pair != NULL) {
       List *rating_peliculas = (List *) rating_pair->value;
-      printf("Peliculas con calificación %.1f - %.1f:\n", rating_inferior, rating_superior);
-
+      printf("===============================\n");
+      printf("Peliculas con rating %.1f-%.1f:\n", rating_inferior, rating_superior);
+      printf("===============================\n");
       //Recorrer la lista de peliculas con ese rating
       Film *peliAux = list_first(rating_peliculas);
       while(peliAux != NULL){
-        printf("Título: %s, Año: %d\n", peliAux->title, peliAux->year);
+        imprimir_peli(peliAux);
         peliAux = list_next(rating_peliculas);
       }
       //break;
-    }
-    //rating_pair = map_next(pelis_byRating);
-  //}
-   
-  if (rating_pair == NULL){
+    } else{
+    printf("===============================\n");
     printf("No hay pelis rango de %.1f - %.1f\n", rating_inferior, rating_superior);
+    printf("===============================\n");
   }
+   
+  
 }
 
 //Buscar por decada
 void buscar_por_decada(Map *pelis_byYear) {
   int year; // Buffer para almacenar el ID de la película
-  
+  printf("===============================\n");
   printf("Ingrese el año de la película: ");
   scanf(" %d", &year);
+  printf("===============================\n");
   int decada = (year/10)*10;
   
   printf("Decada buscada: %d\n", decada);
@@ -328,54 +366,61 @@ void buscar_por_decada(Map *pelis_byYear) {
   if (decada_pair != NULL) {
 
     List *decada_peliculas = (List *) decada_pair->value;
+    printf("===============================\n");
     printf("Peliculas de la decada del %d:\n", decada);
-
+  
     //Recorrer la lista de peliculas con ese rating
     Film *peliAux = list_first(decada_peliculas);
     while(peliAux != NULL){
 
-      printf("Título: %s, Año: %d\n", peliAux->title, peliAux->year);
+      imprimir_peli(peliAux);
       peliAux = list_next(decada_peliculas);
     }
 
   } else {
+    printf("===============================\n");
     printf("No hay pelis en esta decada: %d \n", decada);
+    printf("===============================\n");
   }
 }
 
 //Buscar por decada
 void buscar_por_genre(Map *pelis_byGenre) {
   char genre[300]; // Buffer para almacenar el ID de la película
-
+  printf("===============================\n");
   printf("Ingrese el genero de la película: ");
   scanf(" %[^\n]", genre);
-
+  printf("===============================\n");
   printf("Genero buscado: %s\n", genre);
   MapPair *genre_pair = map_search(pelis_byGenre, genre);
   //director_pair = NULL;
   if (genre_pair != NULL) {
 
     List *genre_peliculas = (List *) genre_pair->value;
+    printf("===============================\n");
     printf("Peliculas con el genero del %s:\n", genre);
 
     //Recorrer la lista de peliculas con ese rating
     Film *peliAux = list_first(genre_peliculas);
     while(peliAux != NULL){
 
-      printf("Título: %s, Año: %d\n", peliAux->title, peliAux->year);
+      imprimir_peli(peliAux);
       peliAux = list_next(genre_peliculas);
     }
 
   } else {
+    printf("===============================\n");
     printf("No hay pelis con este genero: %s \n", genre);
+    printf("===============================\n");
   }
 }
 
 void buscar_por_decada_y_genre(Map *pelis_byYear, Map *pelis_byGenre){
   char genre[300]; // Buffer para almacenar el ID de la película
+  printf("===============================\n");
   printf("Ingrese el genero de la película: ");
   scanf(" %[^\n]", genre);
-  
+  printf("===============================\n");
   int decade; // Buffer para almacenar el ID de la película
   printf("Ingrese la decada de la película: ");
   scanf(" %d", &decade);
@@ -395,7 +440,7 @@ void buscar_por_decada_y_genre(Map *pelis_byYear, Map *pelis_byGenre){
       Film *peliAux = list_first(genre_peliculas);
       while(peliAux != NULL){
         if (peliAux->decade == decade){
-          printf("Título: %s, Año: %d\n", peliAux->title, peliAux->year);
+          imprimir_peli(peliAux);
         }
         
         
@@ -403,11 +448,15 @@ void buscar_por_decada_y_genre(Map *pelis_byYear, Map *pelis_byGenre){
         
       }
     } else {
+      printf("===============================\n");
       printf("No hay peliculas para la decada: %d \n", decade);
+      printf("===============================\n");
     }
 
   } else {
+    printf("===============================\n");
     printf("No hay pelis con este genero: %s \n", genre);
+    printf("===============================\n");
   }
 
   
@@ -428,6 +477,7 @@ int main() {
 
   do {
     mostrarMenuPrincipal();
+    printf("===============================\n");
     printf("Ingrese su opción: ");
     scanf(" %c", &opcion);
 

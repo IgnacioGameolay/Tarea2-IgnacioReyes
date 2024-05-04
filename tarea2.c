@@ -140,7 +140,22 @@ void cargar_peliculas(Map *pelis_byid,
       genre_token = list_next(peli->genres);//[pasar al] siguiente token
     }
 
+    List *lista auxiliar = NULL; 
+    char *genero actual = list_first(pelicula->generos);
 
+    while(genero actual != NULL){
+      
+      MapPair *par clave-valor = map_search(peliculas_porGenero, genero actual);
+
+      if (par clave-valor != NULL){
+        peliculas_por_genero = (List *)par_genero->valor;
+        list_pushFront(genre_peliculas, peli);
+      } else {
+        peliculas_por_genero = list_create();
+        
+        map_insert(peliculas_porGenero, strdup(genero_actual), peliculas_por_genero);
+        list_pushFront(genre_peliculas, peli);
+      }
     
     //Inserta la película en el mapa por decada
     //int decada = 

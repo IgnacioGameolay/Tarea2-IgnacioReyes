@@ -82,11 +82,13 @@ void cargar_peliculas(Map *pelis_byid,
   // strings, donde cada elemento representa un campo de la línea CSV procesada.
   campos = leer_linea_csv(archivo, ','); // Lee los encabezados del CSV
 
-  int cant_intervalos = 10;
-  float rating_intervalos[10][2] = {  
-                            {1.0, 1.4}, {1.5, 2.9}, {3.0, 3.4}, {3.5, 4.9},
-                            {5.0, 5.4}, {5.5, 6.9}, {7.0, 7.4}, {7.5, 8.9},
-                            {9.0, 9.4}, {9.5, 10.0} };
+  int cant_intervalos = 18;
+  float rating_intervalos[18][2] = { {1.0, 1.4}, {1.5, 1.9}, {2.0, 2.4}, {2.5, 2.9},
+                              {3.0, 3.4}, {3.5, 3.9}, {4.0, 4.4}, {4.5, 4.9},
+                              {5.0, 5.4}, {5.5, 5.9}, {6.0, 6.4}, {6.5, 6.9},
+                              {7.0, 7.4}, {7.5, 7.9}, {8.0, 8.4}, {8.5, 8.9},
+                              {9.0, 9.4}, {9.5, 10.0}
+  };
 
   for (int rate = 0; rate < cant_intervalos; rate++){
     List *intervalo_peliculas = list_create(); //Lista de peliculas del intervalo
@@ -139,23 +141,6 @@ void cargar_peliculas(Map *pelis_byid,
       list_pushFront(genre_peliculas, peli);
       genre_token = list_next(peli->genres);//[pasar al] siguiente token
     }
-
-    List *lista auxiliar = NULL; 
-    char *genero actual = list_first(pelicula->generos);
-
-    while(genero actual != NULL){
-      
-      MapPair *par clave-valor = map_search(peliculas_porGenero, genero actual);
-
-      if (par clave-valor != NULL){
-        peliculas_por_genero = (List *)par_genero->valor;
-        list_pushFront(genre_peliculas, peli);
-      } else {
-        peliculas_por_genero = list_create();
-        
-        map_insert(peliculas_porGenero, strdup(genero_actual), peliculas_por_genero);
-        list_pushFront(genre_peliculas, peli);
-      }
     
     //Inserta la película en el mapa por decada
     //int decada = 
@@ -227,8 +212,8 @@ void imprimir_mapa(Map *pelis_byX) {
   while (pair != NULL) {
     char *clave = (char *)pair->key;
     List *valor = (List *)pair->value;
-    printf("===============================\n");
-    printf("Clave : %s\n", clave);
+    //printf("===============================\n");
+    //printf("Clave : %s\n", clave);
 
     Film *peli = list_first(valor);
     while (peli != NULL) {
@@ -236,7 +221,7 @@ void imprimir_mapa(Map *pelis_byX) {
                                                               peli->rating, peli->decade);
       peli = list_next(valor);
     }
-    printf("===============================\n");
+    //printf("===============================\n");
     pair = map_next(pelis_byX);
   }
 }
@@ -335,54 +320,168 @@ void buscar_por_director(Map *pelis_byDirector) {
 
 //Buscar por rating
 void buscar_por_rating(Map *pelis_byRating) {
-  float rating_inferior, rating_superior; // Buffer para almacenar el ID de la película
-  printf("===============================\n");
-  printf("Ingrese el rango de rating de la película (formato: 6.0-6.4): ");
-  scanf(" %f-%f", &rating_inferior, &rating_superior);
-  printf("===============================\n");
+  float rating_inferior, rating_superior; 
   char clave_intervalo[100];
+
+  printf("===============================\n");
+  printf("Seleccione un intervalo de rating:\n");
+  printf("1) 1.0 - 1.4\n");
+  printf("2) 1.5 - 1.9\n");
+  printf("3) 2.0 - 2.4\n");
+  printf("4) 2.5 - 2.9\n");
+  printf("5) 3.0 - 3.4\n");
+  printf("6) 3.5 - 3.9\n");
+  printf("7) 4.0 - 4.4\n");
+  printf("8) 4.5 - 4.9\n");
+  printf("9) 5.0 - 5.4\n");
+  printf("10) 5.5 - 5.9\n");
+  printf("11) 6.0 - 6.4\n");
+  printf("12) 6.5 - 6.9\n");
+  printf("13) 7.0 - 7-4\n");
+  printf("14) 7.5 - 7.9\n");
+  printf("15) 8.0 - 8.4\n");
+  printf("16) 8.5 - 8.9\n");
+  printf("17) 9.0 - 9.4\n");
+  printf("18) 9.5 - 10.0\n");
+  
+  int opcion;
+  printf("===============================\n");
+  printf("Ingrese el intervalo deseado: ");
+  
+  scanf(" %d", &opcion);
+  printf("===============================\n");
+  switch (opcion) {
+    case 1:
+      rating_inferior = 1.0;
+      rating_superior = 1.4;
+      break;
+    case 2:
+      rating_inferior = 1.5;
+      rating_superior = 1.9;
+      break;
+    case 3:
+      rating_inferior = 2.0;
+      rating_superior = 2.4;
+      break;
+    case 4:
+      rating_inferior = 2.5;
+      rating_superior = 2.9;
+      break;
+    case 5:
+      rating_inferior = 3.0;
+      rating_superior = 3.4;
+      break;
+    case 6:
+      rating_inferior = 3.5;
+      rating_superior = 3.9;
+      break;
+    case 7:
+      rating_inferior = 4.0;
+      rating_superior = 4.4;
+      break;
+    case 8:
+      rating_inferior = 4.5;
+      rating_superior = 4.9;
+      break;
+    case 9:
+      rating_inferior = 5.0;
+      rating_superior = 5.4;
+      break;
+    case 10:
+      rating_inferior = 5.5;
+      rating_superior = 5.9;
+      break;
+    case 11:
+      rating_inferior = 6.0;
+      rating_superior = 6.4;
+      break;
+    case 12:
+      rating_inferior = 6.5;
+      rating_superior = 6.9;
+      break;
+    case 13:
+      rating_inferior = 7.0;
+      rating_superior = 7.4;
+      break;
+    case 14:
+      rating_inferior = 7.5;
+      rating_superior = 7.9;
+      break;
+    case 15:
+      rating_inferior = 8.0;
+      rating_superior = 8.4;
+      break;
+    case 16:
+      rating_inferior = 8.5;
+      rating_superior = 8.9;
+      break;
+    case 17:
+      rating_inferior = 9.0;
+      rating_superior = 9.4;
+      break;
+    case 18:
+      rating_inferior = 9.5;
+      rating_superior = 10.0;
+      break;
+    default:
+      printf("===============================\n");
+      printf("Intervalo no válido.\n");
+      printf("===============================\n");
+      return;
+  }
+  
   sprintf(clave_intervalo, "%.1f-%.1f", rating_inferior, rating_superior);
 
   MapPair *rating_pair = map_search(pelis_byRating, clave_intervalo);
   
   if (rating_pair != NULL) {
-      List *rating_peliculas = (List *) rating_pair->value;
+    List *rating_peliculas = (List *) rating_pair->value;
+    if (rating_peliculas != NULL){
       printf("===============================\n");
       printf("Peliculas con rating %.1f-%.1f:\n", rating_inferior, rating_superior);
       printf("===============================\n");
       //Recorrer la lista de peliculas con ese rating
       Film *peliAux = list_first(rating_peliculas);
+      if (peliAux == NULL){
+        printf("===============================\n");
+        printf("No hay películas en el rango de %.1f - %.1f\n", rating_inferior, rating_superior);
+        printf("===============================\n");
+        return;
+      }
       while(peliAux != NULL){
         imprimir_peli(peliAux);
         peliAux = list_next(rating_peliculas);
       }
+    } else {
+      printf("===============================\n");
+      printf("No hay películas en el rango de %.1f - %.1f\n", rating_inferior, rating_superior);
+      printf("===============================\n");
       //break;
-    } else{
+    } 
+  } else {
     printf("===============================\n");
-    printf("No hay pelis rango de %.1f - %.1f\n", rating_inferior, rating_superior);
+    printf("No hay películas en el rango de %.1f - %.1f\n", rating_inferior, rating_superior);
     printf("===============================\n");
   }
-   
-  
 }
 
 //Buscar por decada
 void buscar_por_decada(Map *pelis_byYear) {
   int year; // Buffer para almacenar el ID de la película
   printf("===============================\n");
-  printf("Ingrese el año de la película: ");
+  printf("Ingrese la década de la película: ");
   scanf(" %d", &year);
   printf("===============================\n");
   int decada = (year/10)*10;
   
-  printf("Decada buscada: %d\n", decada);
+  printf("Década buscada: %d\n", decada);
   MapPair *decada_pair = map_search(pelis_byYear, &decada);
   //director_pair = NULL;
   if (decada_pair != NULL) {
 
     List *decada_peliculas = (List *) decada_pair->value;
     printf("===============================\n");
-    printf("Peliculas de la decada del %d:\n", decada);
+    printf("Peliculas de la década del %d:\n", decada);
   
     //Recorrer la lista de peliculas con ese rating
     Film *peliAux = list_first(decada_peliculas);
@@ -394,7 +493,7 @@ void buscar_por_decada(Map *pelis_byYear) {
 
   } else {
     printf("===============================\n");
-    printf("No hay pelis en esta decada: %d \n", decada);
+    printf("No hay películas en esta década: %d \n", decada);
     printf("===============================\n");
   }
 }
@@ -403,17 +502,17 @@ void buscar_por_decada(Map *pelis_byYear) {
 void buscar_por_genre(Map *pelis_byGenre) {
   char genre[300]; // Buffer para almacenar el ID de la película
   printf("===============================\n");
-  printf("Ingrese el genero de la película: ");
+  printf("Ingrese el género de la película: ");
   scanf(" %[^\n]", genre);
   printf("===============================\n");
-  printf("Genero buscado: %s\n", genre);
+  printf("Género buscado: %s\n", genre);
   MapPair *genre_pair = map_search(pelis_byGenre, genre);
   //director_pair = NULL;
   if (genre_pair != NULL) {
 
     List *genre_peliculas = (List *) genre_pair->value;
     printf("===============================\n");
-    printf("Peliculas con el genero del %s:\n", genre);
+    printf("Peliculas con el género de: %s\n", genre);
 
     //Recorrer la lista de peliculas con ese rating
     Film *peliAux = list_first(genre_peliculas);
@@ -425,7 +524,7 @@ void buscar_por_genre(Map *pelis_byGenre) {
 
   } else {
     printf("===============================\n");
-    printf("No hay pelis con este genero: %s \n", genre);
+    printf("No hay películas con este género: %s \n", genre);
     printf("===============================\n");
   }
 }
@@ -433,7 +532,7 @@ void buscar_por_genre(Map *pelis_byGenre) {
 void buscar_por_decada_y_genre(Map *pelis_byYear, Map *pelis_byGenre){
   char genre[300]; // Buffer para almacenar el ID de la película
   printf("===============================\n");
-  printf("Ingrese el genero de la película: ");
+  printf("Ingrese el género de la película: ");
   scanf(" %[^\n]", genre);
   printf("===============================\n");
   int decade; // Buffer para almacenar el ID de la película
@@ -470,7 +569,7 @@ void buscar_por_decada_y_genre(Map *pelis_byYear, Map *pelis_byGenre){
 
   } else {
     printf("===============================\n");
-    printf("No hay pelis con este genero: %s \n", genre);
+    printf("No hay películas con este genero: %s \n", genre);
     printf("===============================\n");
   }
 

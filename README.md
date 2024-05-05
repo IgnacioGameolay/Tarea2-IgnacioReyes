@@ -1,8 +1,8 @@
-# Sistema de Gestión Hospitalaria
+# Buscador de Películas por distintos Criterios
 
 ## Descripción del programa
 
-Este programa cumple la funcionalidad de ser un buscador/filtrador para una Base de De Datos de Películas, permitiendo así a los usuarios cargar películas, buscar por id, buscar por director, buscar por género, buscar por década, buscar por rango de calificaciones, buscar por década y género (doble filtro). 
+Este programa cumple la funcionalidad de ser un buscador/filtrador para una Base de De Datos de películas, permitiendo así a los usuarios cargar películas, buscar por id, buscar por director, buscar por género, buscar por década, buscar por rango de calificaciones, buscar por década y género (doble filtro). 
 Este programa está enfocado para facilitar la búsqueda y filtraje de películas dada una base de datos. Además, el sistema resulta, ser intuitivo y fácil de utilizar.
 
 

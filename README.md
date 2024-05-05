@@ -66,7 +66,7 @@ En este menú, podremos seleccionar una de las 8 opciones cuando se nos solicite
 Los nombres de las opciones son bastante descriptivas (hacen lo que mencionan), pero de igual manera a continuación se mostrarán los pasos a seguir en el caso de uso completo de todos los filtros para una película, desde que es cargada hasta que es buscada por cualquiera de las otras 6 opciones.
 
 
-**Paso sustancial: Cargar las películas de la base de datos al sistema**
+**Opción 1 - Paso sustancial: Cargar las películas de la base de datos al sistema**
 
 Empezamos por cargar las películas de la base de datos, de otra manera no servirían los filtros. 
 Para ello seleccionamos la opción (1).
@@ -82,7 +82,7 @@ Ingrese su opción: 1
 ....
 ```
 
-**Filtro 1: Buscar por ID**
+**Opción 2 - Filtro 1: Buscar por ID**
 
 Una vez las películas hayan sido cargadas al sistema tendremos que indicar el ID de la película que deseamos mostrar, como se muestra en el siguiente ejemplo:
 
@@ -108,7 +108,7 @@ Director(es):
 
 Como se ha visto en el ejemplo, al ingresar una id válida se mostrarán todos los datos de la película asociada, siendo estos su título, id, rating, año, década, géneros, director(es). De no existir la id a buscar, el sistema emitirá una alerta indicando que no se encontró la película deseada.
 
-**Filtro 2: Buscar por director**
+**Opción 3 - Filtro 2: Buscar por director**
 
 El usuario también tiene la opción de filtrar las películas ingresando el nombre de un director. Al hacer esto, el programa buscará en la base de datos y mostrará todos los datos automáticamente de toda película en la que haya sido partícipe el director.
 En el caso de no haber películas del director, el sistema el sistema dará el aviso correspondiente.
@@ -150,7 +150,7 @@ Director(es):
 ....
 ```
 
-**Filtro 3: Buscar por género**
+**Opción 4 - Filtro 3: Buscar por género**
 
 El usuario también tendrá la opción de indicar un género para realizar el filtro/búsqueda de películas, una vez hecho esto, se mostrarán todas aquellas películas que pertenezcan a dicho género. A continuación un ejemplo:
 
@@ -194,7 +194,7 @@ Director(es):
 ```
 De no haber películas con el género indicado, el sistema emitirá una advertencia acorde a ello.
 
-**Filtro 4: Buscar por década**
+**Opción 5 - Filtro 4: Buscar por década**
 
 Esta opción permite al usuario ver el listado de películas que pertenezcan a una determinada década (ej: 2010s), la cual, será brindada por el mismo usuario. De no haber películas lanzadas durante esa década, se mostrará la alerta correspondiente. 
 A continuación un ejemplo:
@@ -237,7 +237,7 @@ Director(es):
 ...
 ```
 
-**Filtro 5: Buscar por rango de calificaciones**
+**Opción 6 - Filtro 5: Buscar por rango de calificaciones**
 
 Este filtro permite al usuario mostrar aquellas películas que pertenezcan a un intervalo/rango de ratings/calificaciones. Este rating será brindada por el mismo usuario al escoger una de las opciones que se le darán. De no haber películas lanzadas durante esa década, se mostrará la alerta correspondiente. 
 A continuación un ejemplo de esta opción:
@@ -296,7 +296,7 @@ Director(es):
 ===============================
 ....
 ```
-**Filtro 6: Buscar por década y género**
+**Opción 7 - Filtro 6: Buscar por década y género**
 
 En el último filtro, tendremos la posibilidad de aplicar 2 filtros, en primer lugar filtramos por década, y luego, aplicaremos filtro por género. Para ambos casos, se expuso anteriormente casos de filtraje individual. A continuación un ejemplo de uso:
 
@@ -310,31 +310,39 @@ Ingrese la década de la película: 2000
 Ingrese el género de la película: Drama
 ===============================
 ===============================
-Título: Laurel Canyon
-ID: tt0298408
-Rating: 6.4
-Año: 2002
+Título: Cassandra's Dream
+ID: tt0795493
+Rating: 6.6
+Año: 2007
 Década: 2000s
 Géneros:
+  -  Crime
   -  Drama
+  -  Romance
+  -  Thriller
 Director(es):
-  -  Lisa Cholodenko
+  -  Woody Allen
 ===============================
 ===============================
-Título: The Notebook
-ID: tt0332280
-Rating: 7.8
+Título: Man on Fire
+ID: tt0328107
+Rating: 7.7
 Año: 2004
 Década: 2000s
 Géneros:
+  -  Action
+  -  Crime
   -  Drama
-  -  Romance
+  -  Thriller
 Director(es):
-  -  Nick Cassavetes
+  -  Tony Scott
 ===============================
 ...
 ```
 Si en cualquiera de los 2 filtros no se hayan películas, se avisará con la alerta correspondiente.
+
+**Opción 8: Salir**
+Finalmente, para terminar la ejecución del programa, seleccionamos la opción 8 y finalizará automáticamente.
 
 ***Cualquier consulta o duda que pueda surgir, contactarse al siguiente mail: 
 ireyestoledo8@gmail.com***

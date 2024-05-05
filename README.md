@@ -37,7 +37,8 @@ Para ello seguir los siguientes pasos:
 ### Problemas conocidos:
 
 - Al ingresar nombres de películas o géneros demasiado largos **podrían** llegar a haber problemas por posible falta de espacio en memoria para esos campos, pero esto serían muy raros casos, sin embargo existe esa posibilidad.
-- Al ingresar un intervalo/rango de calificaciones que no respete el formato solicitado, no se realizará correctamente el filtro, por lo que es probable que mostrarán películas.
+- Si bien, es un inconveniente poco usual, puede llegar a pasar que al realizar entrada de datos haciendo "copy-paste", el sistema no reconozca correctamente lo ingresado y no se hallen películas al filtrar. 
+- Al ingresar datos que no respete el formato esperado o solicitado, no se realizarán correctamente los filtros o búsquedas, por lo que es probable el resultado no sea el deseado.
 
 ### A mejorar:
 

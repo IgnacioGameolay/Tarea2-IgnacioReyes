@@ -17,7 +17,7 @@ Para ello seguir los siguientes pasos:
 3. Estando en el `dashboard`, seleccionar la opción "`New Repl`" y eligir "`Import from GitHub`".
 4. Clonar el repositorio de GitHub: `https://github.com/IgnacioGameolay/Tarea2-IgnacioReyes.git`
 5. [Repl.it](http://repl.it/) clonará el repositorio y preparará el entorno de ejecución automáticamente.
-6. Finalmente, presionar el botón "Run" para compilar y ejecutar la aplicación de manera automática. O bien, compilar el código manualmente utilizando: `gcc tdas/*.c main.c -Wno-unused-result -o main` , y posteriormente ejecutar con: `./main`
+6. Finalmente, presionar el botón "Run" para compilar y ejecutar la aplicación de manera automática. O bien, compilar el código manualmente utilizando: `gcc tdas/*.c tarea2.c -Wno-unused-result -o tarea2` , y posteriormente ejecutar con: `./tarea2`
 
 
 

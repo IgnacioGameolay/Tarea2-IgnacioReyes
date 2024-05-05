@@ -168,6 +168,147 @@ char *eliminar_espacio_inicio(char *str) {
 }
 
 /**
+ * Función para insertar una película en un mapa de películas orgnaizadas por género.
+ *
+ * @param pelis_byGenre Mapa de películas por género.
+ * @param peli La película a insertar.
+ * @param campos Los campos de la película.
+ */
+void insertar_peliculas_por_genero(Map *pelis_byGenre, Film *peli, char **campos){
+	// Agregar el género a la lista de géneros de la película
+	char *tokenDiv = strtok(campos[11], ","); // Dividir los géneros por comas
+	while (tokenDiv != NULL){
+		//Guardamos cada género en la list de géneros de la película
+		list_pushBack(peli->genres, strdup(tokenDiv)); //strdup() para guardar una copia
+		tokenDiv = strtok(NULL, ",");
+	}
+	
+	//Inserción de la película en el mapa por género
+	char *genre_token = list_first(peli->genres); //Obtenemos el primer género de la lista
+	while(genre_token != NULL){
+		//Limpieza de los géneros
+		borrar_comillas(genre_token);
+		genre_token = eliminar_espacio_inicio(genre_token);
+
+		//Buscar el género en el mapa
+		MapPair *genre_pair = map_search(pelis_byGenre, strdup(genre_token));
+		List *genre_peliculas = NULL; //Lista auxiliar de películas para el género
+
+		//Si el género ya existe en el mapa, se obtiene la lista de películas
+		if (genre_pair != NULL){
+			genre_peliculas = (List *)genre_pair->value;
+		} else {
+			//Si el género no existe en el mapa, se crea una nueva lista y se añade al mapa
+			genre_peliculas = list_create();
+			map_insert(pelis_byGenre, strdup(genre_token), genre_peliculas);
+		}
+		//En cualquiera de los 2 casos se inserta la película en la lista de películas del género
+		list_pushFront(genre_peliculas, peli); 
+		genre_token = list_next(peli->genres);//[pasar al] siguiente género
+	}
+}
+
+/**
+ * Función para insertar una película en un mapa de películas orgnaizadas por década.
+ *
+ * @param pelis_byYear Mapa de películas por década.
+ * @param peli La película a insertar.
+ * @param campos Los campos de la película.
+ */
+void insertar_peliculas_por_decada(Map *pelis_byYear, Film *peli, char **campos){
+	//Inserta la película en el mapa por decada
+	List *decada_peliculas = NULL; //Lista auxiliar de películas para la década
+
+	MapPair *decada_pair = map_search(pelis_byYear, &peli->decade); //Buscar la década en el mapa
+
+	//Si la década ya existe en el mapa, se obtiene la lista de películas
+	if (decada_pair != NULL) {
+		decada_peliculas = (List *)decada_pair->value;
+	} else {
+		//Si la década no existe en el mapa, se crea una nueva lista y se añade al mapa
+		decada_peliculas = list_create();
+		map_insert(pelis_byYear, &peli->decade, decada_peliculas);
+	}
+	//En cualquiera de los 2 casos se inserta la película en la lista de películas de la década
+	list_pushFront(decada_peliculas, peli);
+}
+
+/**
+ * Función para insertar una película en un mapa de películas orgnaizadas por director.
+ *
+ * @param pelis_byDirector Mapa de películas por director.
+ * @param peli La película a insertar.
+ * @param campos Los campos de la película.
+ */
+void insertar_peliculas_por_director(Map *pelis_byDirector, Film *peli,
+																		char **campos){
+	//Inserción de la película en el mapa por director
+	char *tokenDiv = strtok(campos[14], ","); // Dividir los directores por comas
+	while (tokenDiv != NULL){
+		//Guardamos cada director en la lista de directores de la película 
+		list_pushBack(peli->directors, strdup(tokenDiv)); //strdup() para guardar por referencia
+		tokenDiv = strtok(NULL, ",");
+	}
+	char *director_token = list_first(peli->directors); //Obtener primer director de la lista
+	List *director_peliculas = NULL; //Lista auxiliar de películas para el director
+
+	while(director_token != NULL){
+		//Limpieza de la cadena de los directores
+		borrar_comillas(director_token);
+		director_token = eliminar_espacio_inicio(director_token);
+
+		//Buscar el director en el mapa
+		MapPair *director_pair = map_search(pelis_byDirector, director_token);
+
+		//Si el director ya existe en el mapa, se obtiene la lista de películas
+		if (director_pair != NULL) {
+			director_peliculas = (List *) director_pair->value;
+
+		} else{
+			//Si el director no existe en el mapa, se crea una nueva lista y se añade al map
+			director_peliculas = list_create();
+			map_insert(pelis_byDirector, strdup(director_token), director_peliculas);
+		}
+		//En cualquiera de los 2 casos se inserta la película en la lista de películas del director
+		list_pushBack(director_peliculas, peli);
+		director_token = list_next(peli->directors); //Pasar al siguiente director
+	}
+}
+
+/**
+ * Función para insertar una película en un mapa de películas orgnanizadas por ratings.
+ *
+ * @param pelis_byDirector Mapa de películas por director.
+ * @param peli La película a insertar.
+ * @param cant_intervalos La cantidad de intervalos de ratings.
+ * @param rating_intervalos Los intervalos de ratings predefinidos.
+ * @param campos Los campos de la película.
+ */
+void insertar_peliculas_por_ratings(Map *pelis_byRating, Film *peli, 
+																		int cant_intervalos, float (*rating_intervalos)[2],
+																		char **campos)
+{
+	//Recorrer los intervalos de ratings predefinidos
+	for (int rate = 0; rate < cant_intervalos; rate++){
+		//Comprobar si el rating de la pelicula se comprende en alg[un] intervalo
+		if (peli->rating >= rating_intervalos[rate][0] && 
+				peli->rating <= rating_intervalos[rate][1])
+		{
+			char clave_intervalo[10]; //La clave para cada intervalo dentro del map
+			//Obtener la clave del intervalo encontrado
+			sprintf(clave_intervalo, "%.1f-%.1f", rating_intervalos[rate][0],                                                                   rating_intervalos[rate][1]);
+			//Buscar el intervalo en el mapa de rating
+			MapPair *rating_pair = map_search(pelis_byRating, clave_intervalo);
+			//Obtener la lista de películas del intervalo
+			List *rating_peliculas = (List *) rating_pair->value;
+			//Agregar la pelicula a la lista de películas del intervalo
+			list_pushBack(rating_peliculas, peli); 
+		}
+	}
+}
+
+
+/**
  * Carga películas desde un archivo CSV y las almacena en diferentes mapas.
  * En esta función cada mapa almacena películas por distintos criterios.
  *
@@ -231,108 +372,13 @@ void cargar_peliculas(Map *pelis_byid,
 		map_insert(pelis_byid, peli->id, peli); //Insertar película por ID en el mapa
 		peli->rating = peli_rating; //Asignar rating a la película	
 
-		// Agregar el género a la lista de géneros de la película
-		char *tokenDiv = strtok(campos[11], ","); // Dividir los géneros por comas
-		while (tokenDiv != NULL){
-			//Guardamos cada género en la list de géneros de la película
-			list_pushBack(peli->genres, strdup(tokenDiv)); //strdup() para guardar una copia
-			tokenDiv = strtok(NULL, ",");
-		}
-
-		//Inserción de la película en el mapa por género
-		char *genre_token = list_first(peli->genres); //Obtenemos el primer género de la lista
-		while(genre_token != NULL){
-			//Limpieza de los géneros
-			borrar_comillas(genre_token);
-			genre_token = eliminar_espacio_inicio(genre_token);
-			
-			//Buscar el género en el mapa
-			MapPair *genre_pair = map_search(pelis_byGenre, strdup(genre_token));
-			List *genre_peliculas = NULL; //Lista auxiliar de películas para el género
-			
-			//Si el género ya existe en el mapa, se obtiene la lista de películas
-			if (genre_pair != NULL){
-				genre_peliculas = (List *)genre_pair->value;
-			} else {
-				//Si el género no existe en el mapa, se crea una nueva lista y se añade al mapa
-				genre_peliculas = list_create();
-				map_insert(pelis_byGenre, strdup(genre_token), genre_peliculas);
-			}
-			//En cualquiera de los 2 casos se inserta la película en la lista de películas del género
-			list_pushFront(genre_peliculas, peli); 
-			genre_token = list_next(peli->genres);//[pasar al] siguiente género
-		}
+		insertar_peliculas_por_genero(pelis_byGenre, peli, campos);		
+		insertar_peliculas_por_decada(pelis_byYear, peli, campos);
+		insertar_peliculas_por_director(pelis_byDirector, peli, campos);
+		insertar_peliculas_por_ratings(pelis_byRating, peli, cant_intervalos, rating_intervalos, 																				 campos);
 		
-		//Inserta la película en el mapa por decada
-		List *decada_peliculas = NULL; //Lista auxiliar de películas para la década
-		
-		MapPair *decada_pair = map_search(pelis_byYear, &peli->decade); //Buscar la década en el mapa
-
-		//Si la década ya existe en el mapa, se obtiene la lista de películas
-		if (decada_pair != NULL) {
-			decada_peliculas = (List *)decada_pair->value;
-		} else {
-			//Si la década no existe en el mapa, se crea una nueva lista y se añade al mapa
-			decada_peliculas = list_create();
-			map_insert(pelis_byYear, &peli->decade, decada_peliculas);
-		}
-		//En cualquiera de los 2 casos se inserta la película en la lista de películas de la década
-		list_pushFront(decada_peliculas, peli);
-
-
-		//Inserción de la película en el mapa por director
-		tokenDiv = strtok(campos[14], ","); // Dividir los directores por comas
-		while (tokenDiv != NULL){
-			//Guardamos cada director en la lista de directores de la película 
-			list_pushBack(peli->directors, strdup(tokenDiv)); //strdup() para guardar por referencia
-			tokenDiv = strtok(NULL, ",");
-		}
-		char *director_token = list_first(peli->directors); //Obtener primer director de la lista
-		List *director_peliculas = NULL; //Lista auxiliar de películas para el director
-		
-		while(director_token != NULL){
-			//Limpieza de la cadena de los directores
-			borrar_comillas(director_token);
-			director_token = eliminar_espacio_inicio(director_token);
-			
-			//Buscar el director en el mapa
-			MapPair *director_pair = map_search(pelis_byDirector, director_token);
-
-			//Si el director ya existe en el mapa, se obtiene la lista de películas
-			if (director_pair != NULL) {
-				director_peliculas = (List *) director_pair->value;
-
-			} else{
-				//Si el director no existe en el mapa, se crea una nueva lista y se añade al map
-				director_peliculas = list_create();
-				map_insert(pelis_byDirector, strdup(director_token), director_peliculas);
-			}
-			//En cualquiera de los 2 casos se inserta la película en la lista de películas del director
-			list_pushBack(director_peliculas, peli);
-			director_token = list_next(peli->directors); //Pasar al siguiente director
-		}
-
-		//Recorrer los intervalos de ratings predefinidos
-		for (int rate = 0; rate < cant_intervalos; rate++){
-			//Comprobar si el rating de la pelicula se comprende en alg[un] intervalo
-			if (peli->rating >= rating_intervalos[rate][0] && 
-					peli->rating <= rating_intervalos[rate][1])
-			{
-				char clave_intervalo[10]; //La clave para cada intervalo dentro del map
-				//Obtener la clave del intervalo encontrado
-				sprintf(clave_intervalo, "%.1f-%.1f", rating_intervalos[rate][0],                                                                   rating_intervalos[rate][1]);
-				//Buscar el intervalo en el mapa de rating
-				MapPair *rating_pair = map_search(pelis_byRating, clave_intervalo);
-				//Obtener la lista de películas del intervalo
-				List *rating_peliculas = (List *) rating_pair->value;
-				//Agregar la pelicula a la lista de películas del intervalo
-				list_pushBack(rating_peliculas, peli); 
-			}
-		}
 	}
-			
-		  
-	
+				
 	fclose(archivo); // Cierra el archivo después de leer todas las líneas
 
 	// Mostrar las películas cargadas
@@ -447,6 +493,7 @@ void buscar_por_rating(Map *pelis_byRating) {
 		while(getchar() != '\n');
 		printf("===============================\n");
 		printf("Intervalo no válido.\n");
+		printf("Presione una tecla para continuar..\n");
 		printf("===============================\n");
 		return;
 	}
@@ -527,6 +574,7 @@ void buscar_por_rating(Map *pelis_byRating) {
 		default:
 			printf("===============================\n");
 			printf("Intervalo no válido.\n");
+			printf("Presione una tecla para continuar..\n");
 			printf("===============================\n");
 			return;
 	}
@@ -587,6 +635,7 @@ void buscar_por_decada(Map *pelis_byYear) {
 	if (flag != 1){
 		while(getchar() != '\n');
 		printf("Década no válida.\n");
+		printf("Presione una tecla para continuar..\n");
 		printf("===============================\n");
 		return;
 	}
@@ -669,6 +718,7 @@ void buscar_por_decada_y_genre(Map *pelis_byYear, Map *pelis_byGenre){
 	if (flag != 1){
 		while(getchar() != '\n'); //Limpiar el buffer
 		printf("Década no válida.\n");
+		printf("Presione una tecla para continuar..\n");
 		printf("===============================\n");
 		return;
 	} else {
